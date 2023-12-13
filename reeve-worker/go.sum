@@ -1,0 +1,4 @@
+github.com/djherbis/stream v1.4.0 h1:aVD46WZUiq5kJk55yxJAyw6Kuera6kmC3i2vEQyW/AE=
+github.com/djherbis/stream v1.4.0/go.mod h1:cqjC1ZRq3FFwkGmUtHwcldbnW8f0Q4YuVsGW1eAFtOk=
+github.com/reeveci/reeve-lib v1.0.0 h1:D+UOYwoubcU0dJYnYMo3QLFpekiKIboEvkJGxVmLJx0=
+github.com/reeveci/reeve-lib v1.0.0/go.mod h1:d/0ACiKMyuRWMC+4r17fNrQB2Jdf0r03R+oRI7hl2ug=
