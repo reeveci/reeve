@@ -12,7 +12,7 @@ when:
       - .env
       - .reeve.yaml
   action:
-    include: [reeve:build]
+    include: [reeveci:reeve:build]
 
 steps:
   - name: Load env
@@ -46,7 +46,7 @@ when:
       - .env
       - .reeve.yaml
   action:
-    include: [reeve:build]
+    include: [reeveci:reeve:build]
 
 steps:
   - name: Load env
@@ -80,7 +80,7 @@ when:
       - .env
       - .reeve.yaml
   action:
-    include: [reeve:build]
+    include: [reeveci:reeve:build]
 
 steps:
   - name: Load env
