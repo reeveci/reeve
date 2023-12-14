@@ -24,15 +24,13 @@ steps:
     task: "@docker/build"
     params:
       DOCKER_LOGIN_REGISTRY: docker.io
-      DOCKER_LOGIN_USER: { env: docker/user }
-      DOCKER_LOGIN_PASSWORD: { env: docker/password }
+      DOCKER_LOGIN_USER: { env: docker/github/user }
+      DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
       NAME: docker.io/reeveci/reeve
       TAG: { var: REEVE_VERSION }
       FILE: reeve-server/docker/Dockerfile
       CONTEXT: .
-      BUILD_ARGS: gitToken=$GIT_TOKEN
       PLATFORM: amd64
-      GIT_TOKEN: { env: git/token }
 
 ---
 type: pipeline
@@ -60,15 +58,13 @@ steps:
     task: "@docker/build"
     params:
       DOCKER_LOGIN_REGISTRY: docker.io
-      DOCKER_LOGIN_USER: { env: docker/user }
-      DOCKER_LOGIN_PASSWORD: { env: docker/password }
+      DOCKER_LOGIN_USER: { env: docker/github/user }
+      DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
       NAME: docker.io/reeveci/reeve-worker
       TAG: { var: REEVE_VERSION }
       FILE: reeve-worker/docker/Dockerfile
       CONTEXT: .
-      BUILD_ARGS: gitToken=$GIT_TOKEN
       PLATFORM: amd64
-      GIT_TOKEN: { env: git/token }
 
 ---
 type: pipeline
@@ -96,12 +92,10 @@ steps:
     task: "@docker/build"
     params:
       DOCKER_LOGIN_REGISTRY: docker.io
-      DOCKER_LOGIN_USER: { env: docker/user }
-      DOCKER_LOGIN_PASSWORD: { env: docker/password }
+      DOCKER_LOGIN_USER: { env: docker/github/user }
+      DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
       NAME: docker.io/reeveci/reeve-runner
       TAG: { var: REEVE_VERSION }
       FILE: reeve-runner/docker/Dockerfile
       CONTEXT: .
-      BUILD_ARGS: gitToken=$GIT_TOKEN
       PLATFORM: amd64
-      GIT_TOKEN: { env: git/token }

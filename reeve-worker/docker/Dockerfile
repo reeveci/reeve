@@ -1,8 +1,5 @@
 FROM golang AS builder
 
-ARG gitToken
-RUN echo machine github.com login git password $gitToken >$HOME/.netrc
-
 COPY . /app
 WORKDIR /app/reeve-worker
 
