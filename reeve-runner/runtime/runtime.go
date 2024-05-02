@@ -166,6 +166,10 @@ func (runtime *Runtime) Cancel() {
 func (runtime *Runtime) Run() bool {
 	defer runtime.Cleanup()
 
+	if strings.TrimSpace(runtime.Pipeline.Headline) != "" {
+		runtime.Log.Subsystem("headline").Println(runtime.Pipeline.Headline)
+	}
+
 	if !runtime.NoDescription && strings.TrimSpace(runtime.Pipeline.Description) != "" {
 		description, err := glamour.Render(runtime.Pipeline.Description, "notty")
 		if err != nil {
