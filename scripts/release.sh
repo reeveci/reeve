@@ -22,7 +22,7 @@ fi
 CURRENT_BRANCH=$(git branch --show-current)
 git checkout main
 
-echo "REEVE_VERSION=$VERSION">.env
+echo "REEVE_VERSION=$VERSION">config.env
 scripts/cleanup.sh
 git add . && git commit -m "release v$VERSION" ||:
 git tag -a "v$VERSION" -m "v$VERSION"
