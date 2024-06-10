@@ -15,6 +15,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"syscall"
 
@@ -52,7 +53,7 @@ func main() {
 	var usage bool
 
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [options...] <target> <method> [<arg> ...]\n\nConnection settings are stored in a config file, which is located in the users home directory by default and can be otherwise specified with either the REEVECLI_CONFIG environment variable or the --url command flag. If you do not want to store the configuration on disk, you can also use /dev/null for the config file.\n\n", os.Args[0])
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [options...] <target> <method> [<arg> ...]\n\nConnection settings are stored in a config file, which is located in the users home directory by default and can be otherwise specified with either the REEVECLI_CONFIG environment variable or the --config command flag. If you do not want to store the configuration on disk, you can also use /dev/null for the config file.\n\n", os.Args[0])
 		flag.PrintDefaults()
 	}
 
@@ -182,10 +183,24 @@ func main() {
 
 		fmt.Printf("done\n\n")
 
-		for plugin, methods := range serverUsage {
+		plugins := make([]string, 0, len(serverUsage))
+		for plugin := range serverUsage {
+			plugins = append(plugins, plugin)
+		}
+		sort.Strings(plugins)
+
+		for _, plugin := range plugins {
 			fmt.Printf("  %s\n", plugin)
 
-			for method, description := range methods {
+			pluginMethods := serverUsage[plugin]
+			methods := make([]string, 0, len(pluginMethods))
+			for method := range pluginMethods {
+				methods = append(methods, method)
+			}
+			sort.Strings(methods)
+
+			for _, method := range methods {
+				description := pluginMethods[method]
 				fmt.Printf("        %s: %s\n", method, strings.ReplaceAll(description, "\n", "\n        "))
 			}
 		}
