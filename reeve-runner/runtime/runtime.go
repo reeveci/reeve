@@ -376,8 +376,8 @@ func (runtime *Runtime) RunTask(config schema.RunConfig, log, errorLog logs.LogW
 
 	args = append(args, "--name", "reeve-"+uuid.NewString(), image)
 
-	if len(config.Command) > 0 {
-		args = append(args, config.Command...)
+	if len(resolvedConfig.Command) > 0 {
+		args = append(args, resolvedConfig.Command...)
 	}
 
 	success, err := runtime.RunCommand(runtime.DockerCommand, args, input, log.Subsystem(">"))

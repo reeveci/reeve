@@ -39,7 +39,7 @@ steps:
 
   - name: skip-me
     task: docker
-    command: ["sh", "-c", "echo hello, $test - $test2"]
+    command: sh -c "echo hello, $test - $test2"
     params:
       test: { env: TEST5 }
       test2: { var: a }

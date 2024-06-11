@@ -121,6 +121,10 @@ func (i *Impl) Discover(trigger schema.Trigger) ([]schema.Pipeline, error) {
 		{
 			PipelineDefinition: test2,
 
+			Env: map[string]schema.Env{
+				"COMMAND": {Value: "echo test2 step"},
+			},
+
 			TaskDomains:    i.taskDomains,
 			TrustedDomains: i.trustedDomains,
 			TrustedTasks:   i.trustedTasks,
@@ -128,7 +132,7 @@ func (i *Impl) Discover(trigger schema.Trigger) ([]schema.Pipeline, error) {
 			Setup: schema.Setup{
 				RunConfig: schema.RunConfig{
 					Task:    "@trust/docker",
-					Command: []string{"docker", "ps"},
+					Command: "docker ps",
 				},
 			},
 		},
