@@ -1,6 +1,6 @@
 # Reeve CI / CD
 
-Simple extensible open source CI/CD solution written in Go.
+Simple extensible open source CI / CD solution written in Go.
 
 ## Common Concepts
 

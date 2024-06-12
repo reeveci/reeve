@@ -3,7 +3,6 @@ tests/out/
 tests/cert/
 
 plugin-example/plugin-example
-reeve-cli/reeve-cli
 reeve-runner/reeve-runner
 reeve-server/reeve-server
 reeve-worker/reeve-worker

@@ -3,12 +3,6 @@
 CURRENT_WORK_DIR=$(pwd)
 cd $(dirname $0)/..
 
-echo visiting reeve-cli
-cd reeve-cli
-go get -u ./...
-go mod tidy
-cd ..
-
 echo visiting reeve-server
 cd reeve-server
 go get github.com/reeveci/reeve-lib

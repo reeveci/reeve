@@ -4,7 +4,6 @@ toolchain go1.21.4
 
 use (
 	./plugin-example
-	./reeve-cli
 	./reeve-runner
 	./reeve-server
 	./reeve-worker
