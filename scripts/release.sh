@@ -5,10 +5,12 @@ if [ -z "$VERSION" ]; then
   echo "Missing VERSION variable"
   exit 1
 fi
-if [[ "$VERSION" = v* ]]; then
-  echo "VERSION should not include the leading 'v'"
-  exit 1
-fi
+
+case "$VERSION" in
+  v*)
+    echo "VERSION should not include the leading 'v'"
+    exit 1
+esac
 
 CURRENT_WORK_DIR=$(pwd)
 cd $(dirname $0)/..
