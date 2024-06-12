@@ -63,7 +63,9 @@ func main() {
 	workerGroup := exe.GetEnvDef("REEVE_WORKER_GROUP", schema.DEFAULT_WORKER_GROUP)
 	runnerCommand := exe.GetEnvDef("REEVE_RUNNER_COMMAND", "reeve-runner")
 
-	auth := fmt.Sprintf("Bearer %s", workerSecret)
+	authHeader := exe.GetEnvDef("REEVE_WORKER_AUTH_HEADER", "Authorization")
+	authPrefix := exe.GetEnvDef("REEVE_WORKER_AUTH_PREFIX", "Bearer ")
+	auth := strings.TrimSpace(authPrefix + workerSecret)
 	client := &http.Client{}
 
 	procLog.Printf("connecting to %s", apiUrl)
@@ -76,7 +78,7 @@ func main() {
 			return
 		}
 
-		req.Header.Set("Authorization", auth)
+		req.Header.Set(authHeader, auth)
 
 		resp, err := client.Do(req)
 		if err != nil {
@@ -121,7 +123,7 @@ func main() {
 			return
 		}
 
-		req.Header.Set("Authorization", auth)
+		req.Header.Set(authHeader, auth)
 		req.Header.Set("Content-Type", "application/json")
 
 		resp, err = client.Do(req)
@@ -168,7 +170,7 @@ func main() {
 		go func() {
 			defer wg.Done()
 
-			SendLogs(stream, client, auth, apiUrl, workerGroup, message.Activity, procLog, procErrLog)
+			SendLogs(stream, client, authHeader, auth, apiUrl, workerGroup, message.Activity, procLog, procErrLog)
 		}()
 
 		// Execute pipeline runner
@@ -215,7 +217,7 @@ func main() {
 			return
 		}
 
-		req.Header.Set("Authorization", auth)
+		req.Header.Set(authHeader, auth)
 		req.Header.Set("Content-Type", "application/json")
 
 		resp, err = client.Do(req)
@@ -235,7 +237,7 @@ func main() {
 	}
 }
 
-func SendLogs(stream *stream.Stream, client *http.Client, auth, apiUrl, workerGroup, activity string, procLog, errorLog *log.Logger) {
+func SendLogs(stream *stream.Stream, client *http.Client, authHeader, auth, apiUrl, workerGroup, activity string, procLog, errorLog *log.Logger) {
 	firstTry := true
 
 	for {
@@ -255,7 +257,7 @@ func SendLogs(stream *stream.Stream, client *http.Client, auth, apiUrl, workerGr
 				return
 			}
 
-			req.Header.Set("Authorization", auth)
+			req.Header.Set(authHeader, auth)
 
 			resp, err := client.Do(req)
 			if err != nil {
@@ -298,7 +300,7 @@ func SendLogs(stream *stream.Stream, client *http.Client, auth, apiUrl, workerGr
 			return
 		}
 
-		req.Header.Set("Authorization", auth)
+		req.Header.Set(authHeader, auth)
 
 		resp, err := client.Do(req)
 		if err != nil {

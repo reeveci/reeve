@@ -26,8 +26,13 @@ import (
 var buildVersion = "development"
 
 type Config struct {
-	Secret string `toml:"secret"`
-	URL    string `toml:"url"`
+	URL    string `toml:"url,omitempty"`
+	Secret string `toml:"secret,omitempty"`
+
+	Auth struct {
+		Header string `toml:"header,omitempty"`
+		Prefix string `toml:"prefix,omitempty"`
+	} `toml:"auth,omitempty"`
 }
 
 func main() {
@@ -66,6 +71,8 @@ func main() {
 
 	flag.StringVar(&config.URL, "url", "", "reeve server URL")
 	flag.StringVar(&config.URL, "u", "", "reeve server URL (shorthand)")
+	flag.StringVar(&config.Auth.Header, "auth-header", "", "custom auth header")
+	flag.StringVar(&config.Auth.Prefix, "auth-prefix", "", "custom auth prefix")
 	flag.StringVar(&config.Secret, "secret", "", "secret (use - for stdin)")
 	flag.StringVar(&config.Secret, "s", "", "secret (use - for stdin) (shorthand)")
 
@@ -130,7 +137,15 @@ func main() {
 	}
 
 	// Create client
-	auth := fmt.Sprintf("Bearer %s", config.Secret)
+	authHeader := config.Auth.Header
+	if authHeader == "" {
+		authHeader = "Authorization"
+	}
+	authPrefix := config.Auth.Prefix
+	if authPrefix == "" {
+		authPrefix = "Bearer "
+	}
+	auth := strings.TrimSpace(authPrefix + config.Secret)
 	client := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure},
 	}}
@@ -148,7 +163,7 @@ func main() {
 			return
 		}
 
-		req.Header.Set("Authorization", auth)
+		req.Header.Set(authHeader, auth)
 
 		resp, err := client.Do(req)
 		if err != nil {
@@ -230,7 +245,7 @@ func main() {
 		return
 	}
 
-	req.Header.Set("Authorization", auth)
+	req.Header.Set(authHeader, auth)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
