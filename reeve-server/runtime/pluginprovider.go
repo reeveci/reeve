@@ -68,10 +68,20 @@ func (runtime *Runtime) LoadPlugins() error {
 	nameRegex := regexp.MustCompile("^[a-zA-Z0-9]+$")
 
 	for _, path := range pluginPaths {
+		cmd := exec.Command(path)
+		for _, env := range os.Environ() {
+			origKey := strings.Split(env, "=")[0]
+			key := strings.ToUpper(origKey)
+			if !strings.HasPrefix(key, "REEVE_") {
+				cmd.Env = append(cmd.Env, env)
+			}
+		}
+
 		client := goplugin.NewClient(&goplugin.ClientConfig{
 			HandshakeConfig: plugin.Handshake,
 			Plugins:         plugin.PluginMap,
-			Cmd:             exec.Command(path),
+			Cmd:             cmd,
+			SkipHostEnv:     true,
 			Managed:         true,
 		})
 
@@ -125,13 +135,13 @@ func (runtime *Runtime) LoadPlugins() error {
 			for _, env := range os.Environ() {
 				origKey := strings.Split(env, "=")[0]
 				key := strings.ToUpper(origKey)
-				if strings.HasPrefix(key, SHARED_SETTING_PREFIX) && len(key) > len(SHARED_SETTING_PREFIX)+1 {
+				if strings.HasPrefix(key, SHARED_SETTING_PREFIX) && len(key) > len(SHARED_SETTING_PREFIX) {
 					settingName := strings.TrimPrefix(key, SHARED_SETTING_PREFIX)
 					if _, ok := settings[settingName]; !ok {
 						settings[settingName] = os.Getenv(origKey)
 					}
 				}
-				if strings.HasPrefix(key, pluginPrefix) && len(key) > len(pluginPrefix)+1 {
+				if strings.HasPrefix(key, pluginPrefix) && len(key) > len(pluginPrefix) {
 					settings[strings.TrimPrefix(key, pluginPrefix)] = os.Getenv(origKey)
 				}
 			}
