@@ -10,6 +10,12 @@ docker run \
   -e REEVE_API_PORT \
   -e REEVE_RUNTIME_ENV \
   -e REEVE_DOCKER_COMMAND \
+  -e REEVE_FORWARD_PROXY \
   -e REEVE_NO_DESCRIPTION \
+  -e HTTP_PROXY -e http_proxy \
+  -e HTTPS_PROXY -e https_proxy \
+  -e FTP_PROXY -e ftp_proxy \
+  -e NO_PROXY -e no_proxy \
+  -e ALL_PROXY -e all_proxy \
   --name reeve-runner-$(cat /proc/sys/kernel/random/uuid) \
   $REEVE_RUNNER_IMAGE

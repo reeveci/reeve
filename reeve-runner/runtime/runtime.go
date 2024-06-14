@@ -19,6 +19,8 @@ import (
 	"github.com/reeveci/reeve-lib/schema"
 )
 
+var proxyEnv = []string{"HTTP_PROXY", "HTTPS_PROXY", "FTP_PROXY", "NO_PROXY", "ALL_PROXY"}
+
 var stepDefaultConditions = map[string]schema.Condition{
 	"status": {
 		Include: []string{"success"},
@@ -33,6 +35,7 @@ type Runtime struct {
 	APIPort       string
 	RuntimeEnv    string
 	DockerCommand string
+	ForwardProxy  bool
 	NoDescription bool
 
 	hostname        string
@@ -58,6 +61,7 @@ func GetRuntime() (*Runtime, error) {
 		APIPort:       exe.GetEnvDef("REEVE_API_PORT", "9090"),
 		RuntimeEnv:    exe.GetEnvDef("REEVE_RUNTIME_ENV", "host"),
 		DockerCommand: exe.GetEnvDef("REEVE_DOCKER_COMMAND", "docker"),
+		ForwardProxy:  exe.GetBoolEnvDef("REEVE_FORWARD_PROXY", true),
 		NoDescription: exe.GetBoolEnvDef("REEVE_NO_DESCRIPTION", false),
 
 		network:         "reeve-" + uuid.NewString(),
@@ -336,6 +340,18 @@ func (runtime *Runtime) RunTask(config schema.RunConfig, log, errorLog logs.LogW
 	if len(missingEnv) > 0 {
 		errorLog.Printf("failed to run task - missing environment variables %s\n", strings.Join(missingEnv, ", "))
 		return false
+	}
+
+	if runtime.ForwardProxy {
+		for _, key := range proxyEnv {
+			if value := os.Getenv(key); value != "" {
+				args = append(args, "-e", fmt.Sprintf("%s=%s", key, value))
+			}
+			key = strings.ToLower(key)
+			if value := os.Getenv(key); value != "" {
+				args = append(args, "-e", fmt.Sprintf("%s=%s", key, value))
+			}
+		}
 	}
 
 	paramKeys := make([]string, 0, len(resolvedConfig.Params))
