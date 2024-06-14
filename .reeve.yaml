@@ -27,6 +27,7 @@ steps:
       DOCKER_LOGIN_REGISTRY: docker.io
       DOCKER_LOGIN_USER: { env: docker/github/user }
       DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
+      TEST: "false"
       NAME: docker.io/reeveci/reeve
       TAG: { var: REEVE_VERSION }
       FILE: reeve-server/docker/Dockerfile
