@@ -12,8 +12,6 @@ func ServeAPI(runtime *runtime.Runtime) {
 	// check messageplugins before sending message into queue
 
 	http.HandleFunc("/api/v1/var", HandleVar(runtime))
-	// temporarily keep old endpoint for compatibility
-	http.HandleFunc("/api/v1/var/set", HandleVar(runtime))
 
 	ServeHTTP(runtime)
 }
