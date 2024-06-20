@@ -20,11 +20,11 @@ func HandleVar(runtime *runtime.Runtime) http.HandlerFunc {
 				return
 			}
 
-			runtime.VarLock.Lock()
-			value := runtime.Vars[key]
-			runtime.VarLock.Unlock()
+			v := q.Get("value")
 
-			res.Write([]byte(value))
+			runtime.VarLock.Lock()
+			runtime.Vars[key] = schema.Var(v)
+			runtime.VarLock.Unlock()
 
 		case http.MethodPost:
 			q := req.URL.Query()

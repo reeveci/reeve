@@ -20,7 +20,7 @@ steps:
       echo Hello, $test!
       echo How are you?
 
-      wget "$REEVE_API/api/v1/var/set?key=a&value=test" -O -
+      wget -O - "$REEVE_API/api/v1/var?key=a&value=test"
     params:
       test:
         env: TEST
