@@ -26,7 +26,7 @@ git checkout main
 
 echo "REEVE_VERSION=$VERSION">config.env
 scripts/cleanup.sh
-git add . && git commit -m "release v$VERSION" ||:
+git add . && git commit -m "release v$VERSION"
 git tag -a "v$VERSION" -m "v$VERSION"
 git tag -a "reeve-runner/v$VERSION" -m "v$VERSION"
 git tag -a "reeve-server/v$VERSION" -m "v$VERSION"
