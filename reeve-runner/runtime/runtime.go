@@ -19,7 +19,7 @@ import (
 	"github.com/reeveci/reeve-lib/schema"
 )
 
-var proxyEnv = []string{"HTTP_PROXY", "HTTPS_PROXY", "FTP_PROXY", "NO_PROXY", "ALL_PROXY"}
+var proxyEnv = []string{"HTTP_PROXY", "HTTPS_PROXY", "FTP_PROXY", "ALL_PROXY"}
 
 var stepDefaultConditions = map[string]schema.Condition{
 	"status": {
@@ -351,6 +351,15 @@ func (runtime *Runtime) RunTask(config schema.RunConfig, log, errorLog logs.LogW
 			if value := os.Getenv(key); value != "" {
 				args = append(args, "-e", fmt.Sprintf("%s=%s", key, value))
 			}
+		}
+		for _, key := range []string{"NO_PROXY", "no_proxy"} {
+			value := os.Getenv(key)
+			if value == "" {
+				value = runtime.hostname
+			} else {
+				value += "," + runtime.hostname
+			}
+			args = append(args, "-e", fmt.Sprintf("%s=%s", key, value))
 		}
 	}
 
