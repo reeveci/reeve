@@ -14,6 +14,7 @@ import (
 	"path"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/djherbis/stream"
 	"github.com/reeveci/reeve-lib/exe"
@@ -21,6 +22,8 @@ import (
 )
 
 var buildVersion = "development"
+
+const retry = 5 * time.Second
 
 type workerQueueResponse struct {
 	Contract string          `json:"contract"`
@@ -68,35 +71,43 @@ func main() {
 	auth := strings.TrimSpace(authPrefix + workerSecret)
 	client := &http.Client{}
 
-	procLog.Printf("connecting to %s", apiUrl)
-
 	for {
+		procLog.Printf("connecting to %s", apiUrl)
+
 		// Get message from worker queue
 		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/v1/worker/queue?group=%s", apiUrl, workerGroup), nil)
 		if err != nil {
-			procErrLog.Fatalf("creating HTTP request failed - %s\n", err)
-			return
+			procErrLog.Printf("creating HTTP request failed - %s\n", err)
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
+			continue
 		}
 
 		req.Header.Set(authHeader, auth)
 
 		resp, err := client.Do(req)
 		if err != nil {
-			procErrLog.Fatalf("fetching message from queue failed - %s\n", err)
-			return
+			procErrLog.Printf("fetching message from queue failed - %s\n", err)
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
+			continue
 		}
 
 		if resp.StatusCode != http.StatusOK {
 			errorMessage, _ := io.ReadAll(resp.Body)
 			resp.Body.Close()
-			procErrLog.Fatalf("fetching message from queue failed - status %v - %s\n", resp.StatusCode, string(errorMessage))
-			return
+			procErrLog.Printf("fetching message from queue failed - status %v - %s\n", resp.StatusCode, string(errorMessage))
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
+			continue
 		}
 
 		if resp.Header.Get("Content-Type") != "application/json" {
 			resp.Body.Close()
-			procErrLog.Fatalln("fetching message from queue failed - Content-Type header is not application/json")
-			return
+			procErrLog.Println("fetching message from queue failed - Content-Type header is not application/json")
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
+			continue
 		}
 
 		var message workerQueueResponse
@@ -104,6 +115,8 @@ func main() {
 		resp.Body.Close()
 		if err != nil {
 			procErrLog.Printf("received invalid message from queue - %s\n", err)
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
 			continue
 		}
 
@@ -113,14 +126,18 @@ func main() {
 			Contract: message.Contract,
 		})
 		if err != nil {
-			procErrLog.Fatalf("encoding acknowledgement failed - %s\n", err)
-			return
+			procErrLog.Printf("encoding acknowledgement failed - %s\n", err)
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
+			continue
 		}
 
 		req, err = http.NewRequest(http.MethodPost, fmt.Sprintf("%s/api/v1/worker/ack?group=%s", apiUrl, workerGroup), buffer)
 		if err != nil {
-			procErrLog.Fatalf("creating HTTP request failed - %s\n", err)
-			return
+			procErrLog.Printf("creating HTTP request failed - %s\n", err)
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
+			continue
 		}
 
 		req.Header.Set(authHeader, auth)
@@ -129,6 +146,8 @@ func main() {
 		resp, err = client.Do(req)
 		if err != nil {
 			procErrLog.Printf("sending acknowledgement failed - %s\n", err)
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
 			continue
 		}
 
@@ -136,6 +155,8 @@ func main() {
 			errorMessage, _ := io.ReadAll(resp.Body)
 			resp.Body.Close()
 			procErrLog.Printf("sending acknowledgement failed - status %v - %s\n", resp.StatusCode, string(errorMessage))
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
 			continue
 		}
 
@@ -207,14 +228,18 @@ func main() {
 		buffer = new(bytes.Buffer)
 		err = json.NewEncoder(buffer).Encode(result)
 		if err != nil {
-			procErrLog.Fatalf("encoding pipeline result failed - %s\n", err)
-			return
+			procErrLog.Printf("encoding pipeline result failed - %s\n", err)
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
+			continue
 		}
 
 		req, err = http.NewRequest(http.MethodPost, fmt.Sprintf("%s/api/v1/worker/result?group=%s&activity=%s", apiUrl, workerGroup, message.Activity), buffer)
 		if err != nil {
-			procErrLog.Fatalf("creating HTTP request failed - %s\n", err)
-			return
+			procErrLog.Printf("creating HTTP request failed - %s\n", err)
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
+			continue
 		}
 
 		req.Header.Set(authHeader, auth)
@@ -223,6 +248,8 @@ func main() {
 		resp, err = client.Do(req)
 		if err != nil {
 			procErrLog.Printf("sending pipeline result failed - %s\n", err)
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
 			continue
 		}
 
@@ -230,6 +257,8 @@ func main() {
 			errorMessage, _ := io.ReadAll(resp.Body)
 			resp.Body.Close()
 			procErrLog.Printf("sending pipeline result failed - status %v - %s\n", resp.StatusCode, string(errorMessage))
+			procLog.Printf("reconnecting in %v\n", retry)
+			time.Sleep(retry)
 			continue
 		}
 
