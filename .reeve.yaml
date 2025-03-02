@@ -1,104 +1,104 @@
----
-type: pipeline
-name: Build Reeve Server
+# ---
+# type: pipeline
+# name: Build Reeve Server
 
-when:
-  workerGroup:
-    include: [soldier]
-  trigger:
-    include: [commit, action]
-  file:
-    include:
-      - config.env
-      - .reeve.yaml
-  action:
-    include: [reeveci:reeve:build]
+# when:
+#   workerGroup:
+#     include: [soldier]
+#   trigger:
+#     include: [commit, action]
+#   file:
+#     include:
+#       - config.env
+#       - .reeve.yaml
+#   action:
+#     include: [reeveci:reeve:build]
 
-steps:
-  - name: Load env
-    task: "@reeve/load-env-file"
-    params:
-      FILE: config.env
-      LOAD_ALL: "true"
+# steps:
+#   - name: Load env
+#     task: "@reeve/load-env-file"
+#     params:
+#       FILE: config.env
+#       LOAD_ALL: "true"
 
-  - name: Build image
-    task: "@docker/build"
-    params:
-      DOCKER_LOGIN_REGISTRY: docker.io
-      DOCKER_LOGIN_USER: { env: docker/github/user }
-      DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
-      NAME: docker.io/reeveci/reeve
-      TAG: { var: REEVE_VERSION }
-      FILE: reeve-server/docker/Dockerfile
-      CONTEXT: .
-      PLATFORM: amd64
+#   - name: Build image
+#     task: "@docker/build"
+#     params:
+#       DOCKER_LOGIN_REGISTRY: docker.io
+#       DOCKER_LOGIN_USER: { env: docker/github/user }
+#       DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
+#       NAME: docker.io/reeveci/reeve
+#       TAG: { var: REEVE_VERSION }
+#       FILE: reeve-server/docker/Dockerfile
+#       CONTEXT: .
+#       PLATFORM: amd64
 
----
-type: pipeline
-name: Build Reeve Worker
+# ---
+# type: pipeline
+# name: Build Reeve Worker
 
-when:
-  workerGroup:
-    include: [soldier]
-  trigger:
-    include: [commit, action]
-  file:
-    include:
-      - config.env
-      - .reeve.yaml
-  action:
-    include: [reeveci:reeve:build]
+# when:
+#   workerGroup:
+#     include: [soldier]
+#   trigger:
+#     include: [commit, action]
+#   file:
+#     include:
+#       - config.env
+#       - .reeve.yaml
+#   action:
+#     include: [reeveci:reeve:build]
 
-steps:
-  - name: Load env
-    task: "@reeve/load-env-file"
-    params:
-      FILE: config.env
-      LOAD_ALL: "true"
+# steps:
+#   - name: Load env
+#     task: "@reeve/load-env-file"
+#     params:
+#       FILE: config.env
+#       LOAD_ALL: "true"
 
-  - name: Build image
-    task: "@docker/build"
-    params:
-      DOCKER_LOGIN_REGISTRY: docker.io
-      DOCKER_LOGIN_USER: { env: docker/github/user }
-      DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
-      NAME: docker.io/reeveci/reeve-worker
-      TAG: { var: REEVE_VERSION }
-      FILE: reeve-worker/docker/Dockerfile
-      CONTEXT: .
-      PLATFORM: amd64
+#   - name: Build image
+#     task: "@docker/build"
+#     params:
+#       DOCKER_LOGIN_REGISTRY: docker.io
+#       DOCKER_LOGIN_USER: { env: docker/github/user }
+#       DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
+#       NAME: docker.io/reeveci/reeve-worker
+#       TAG: { var: REEVE_VERSION }
+#       FILE: reeve-worker/docker/Dockerfile
+#       CONTEXT: .
+#       PLATFORM: amd64
 
----
-type: pipeline
-name: Build Reeve Runner
+# ---
+# type: pipeline
+# name: Build Reeve Runner
 
-when:
-  workerGroup:
-    include: [soldier]
-  trigger:
-    include: [commit, action]
-  file:
-    include:
-      - config.env
-      - .reeve.yaml
-  action:
-    include: [reeveci:reeve:build]
+# when:
+#   workerGroup:
+#     include: [soldier]
+#   trigger:
+#     include: [commit, action]
+#   file:
+#     include:
+#       - config.env
+#       - .reeve.yaml
+#   action:
+#     include: [reeveci:reeve:build]
 
-steps:
-  - name: Load env
-    task: "@reeve/load-env-file"
-    params:
-      FILE: config.env
-      LOAD_ALL: "true"
+# steps:
+#   - name: Load env
+#     task: "@reeve/load-env-file"
+#     params:
+#       FILE: config.env
+#       LOAD_ALL: "true"
 
-  - name: Build image
-    task: "@docker/build"
-    params:
-      DOCKER_LOGIN_REGISTRY: docker.io
-      DOCKER_LOGIN_USER: { env: docker/github/user }
-      DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
-      NAME: docker.io/reeveci/reeve-runner
-      TAG: { var: REEVE_VERSION }
-      FILE: reeve-runner/docker/Dockerfile
-      CONTEXT: .
-      PLATFORM: amd64
+#   - name: Build image
+#     task: "@docker/build"
+#     params:
+#       DOCKER_LOGIN_REGISTRY: docker.io
+#       DOCKER_LOGIN_USER: { env: docker/github/user }
+#       DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
+#       NAME: docker.io/reeveci/reeve-runner
+#       TAG: { var: REEVE_VERSION }
+#       FILE: reeve-runner/docker/Dockerfile
+#       CONTEXT: .
+#       PLATFORM: amd64
