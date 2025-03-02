@@ -1,17 +1,7 @@
 # Reeve CI / CD
 
-Simple extensible open source CI / CD solution written in Go.
+Reeve is an extensible open source CI / CD solution written in Go.
+It is based on a plugin system that allows you to integrate it in your existing infrastracture components.
+Pipeline steps are run in [Docker](https://docker.com) containers for better isolation, high compatibility and reproducible results.
 
-## Common Concepts
-
-- Plugins should implement common settings (which can be configured for all plugins using `REEVE_SHARED_` scope):
-  - `ENABLED=true`
-  - `TRUSTED_DOMAINS`
-  - `TRUSTED_TASKS` (split by spaces -> strings.Fields)
-  - `SETUP_GIT_TASK`
-
-## Roadmap
-
-- Metrics
-  - Status Badges
-  - Display queued pipelines / more details
+See [reeveci.github.io](https://reeveci.github.io) for more information.
