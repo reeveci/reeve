@@ -8,15 +8,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 func setupConfigFile(v *viper.Viper) {
 	v.SetConfigFile(configFile)
 	if ext := filepath.Ext(configFile); ext == "" || ext == "." {
