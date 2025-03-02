@@ -1,4 +1,4 @@
-# Reeve CI / CD - Server
+# [Reeve CI / CD](https://reeveci.github.io) Server
 
 ## Installing
 

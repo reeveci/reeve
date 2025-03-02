@@ -11,19 +11,17 @@ import (
 	"github.com/spf13/viper"
 )
 
-func getDefaultConfigDir() string {
+func getDefaultConfigFile() string {
 	if configDir, err := os.UserConfigDir(); err == nil {
-		return filepath.Join(configDir, "reeve")
+		return filepath.Join(configDir, "reeve", "reeve.toml")
 	}
 
-	return "."
+	return filepath.Join(".", ".reeve.toml")
 }
 
 var programName = os.Args[0]
 
-const configFile = ".reevecli"
-
-var defaultConfigDir = getDefaultConfigDir()
+var defaultConfigFile = getDefaultConfigFile()
 
 const defaultAuthHeader = "Authorization"
 const defaultAuthPrefix = "Bearer "
@@ -39,13 +37,13 @@ type Config struct {
 	} `mapstructure:"auth"`
 }
 
-var configDir string
+var configFile string
 var config Config
 
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.Flags().StringVar(&configDir, "config", "", "Location of client config files (default \""+defaultConfigDir+"\")")
+	rootCmd.Flags().StringVar(&configFile, "config", "", "Location of client config file (default \""+defaultConfigFile+"\")")
 
 	rootCmd.Flags().String("url", "", "Reeve server URL")
 	rootCmd.Flags().Bool("insecure", false, "Allow insecure TLS connections by skipping certificate verification")
@@ -67,37 +65,21 @@ func initConfig() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
-	if configDir == "" {
-		configDir = os.Getenv("REEVE_CLI_CONFIG")
+	if configFile == "" {
+		configFile = os.Getenv("REEVE_CLI_CONFIG")
 	}
-	if configDir == "" {
-		configDir = getDefaultConfigDir()
+	if configFile == "" {
+		configFile = defaultConfigFile
 	}
-	viper.AddConfigPath(configDir)
-	viper.SetConfigName(configFile)
-	viper.SetConfigType("toml")
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			fmt.Fprintln(os.Stderr, "Cannot load config:", err)
-			os.Exit(1)
-		}
+	if err := loadConfigFile(viper.GetViper()); err != nil {
+		fmt.Fprintln(os.Stderr, "Cannot load config:", err)
+		os.Exit(1)
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot load config:", err)
 		os.Exit(1)
 	}
-}
-
-var rootCmd = &cobra.Command{
-	Use:   programName,
-	Short: "Reeve CI / CD - Command Line Tools",
-	Long: `Reeve CI / CD - Command Line Tools
-
-Most options can also be specified using environment variables, which need to be prefixed with 'REEVE_CLI_', e.g. 'REEVE_CLI_CONFIG=/path/to/config'.`,
-	DisableFlagsInUseLine: true,
-
-	TraverseChildren: true,
 }
 
 func Execute(buildInfo buildinfo.BuildInfo) {

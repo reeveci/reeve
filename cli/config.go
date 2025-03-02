@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var fileConfig map[string]any
@@ -29,11 +29,14 @@ Note that configuration can be overridden using environment variables or flags. 
 	TraverseChildren: true,
 
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		_, err := toml.DecodeFile(filepath.Join(configDir, configFile), &fileConfig)
-		if err != nil && !errors.Is(err, os.ErrNotExist) {
-			fmt.Fprintln(os.Stderr, "Cannot parse config:", err)
+		parser := viper.New()
+
+		if err := loadConfigFile(parser); err != nil {
+			fmt.Fprintln(os.Stderr, "Cannot load config:", err)
 			os.Exit(1)
 		}
+
+		fileConfig = parser.AllSettings()
 	},
 }
 
@@ -49,8 +52,7 @@ var configListCmd = &cobra.Command{
 	Args: cobra.NoArgs,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		err := toml.NewEncoder(os.Stdout).Encode(fileConfig)
-		if err != nil {
+		if err := toml.NewEncoder(os.Stdout).Encode(fileConfig); err != nil {
 			fmt.Fprintln(os.Stderr, "Cannot encode config:", err)
 			os.Exit(1)
 		}
@@ -233,14 +235,12 @@ var configUnsetCmd = &cobra.Command{
 			var ok bool
 			section, ok = section[parts[0]].(map[string]any)
 			if !ok {
-				fmt.Println("1")
 				fmt.Fprintf(os.Stderr, "The option '%s' is not set\n", name)
 				os.Exit(1)
 			}
 		}
 
 		if _, ok := section[parts[0]]; !ok {
-			fmt.Println("2")
 			fmt.Fprintf(os.Stderr, "The option '%s' is not set\n", name)
 			os.Exit(1)
 		}
@@ -251,21 +251,21 @@ var configUnsetCmd = &cobra.Command{
 }
 
 func WriteConfig() {
-	if err := os.MkdirAll(configDir, 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(configFile), 0755); err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot write config file:", err)
 		os.Exit(1)
 	}
 
-	file, err := os.OpenFile(filepath.Join(configDir, configFile), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
+	encoder := viper.New()
+	if err := encoder.MergeConfigMap(fileConfig); err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot write config file:", err)
 		os.Exit(1)
 	}
-	defer file.Close()
 
-	err = toml.NewEncoder(file).Encode(fileConfig)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Cannot write config file: %s\n", err)
+	setupConfigFile(encoder)
+
+	if err := encoder.WriteConfig(); err != nil {
+		fmt.Fprintln(os.Stderr, "Cannot write config file:", err)
 		os.Exit(1)
 	}
 }
