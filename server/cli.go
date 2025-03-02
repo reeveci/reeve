@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/reeveci/reeve/buildinfo"
-	"github.com/reeveci/reeve/worker/legacy"
+	"github.com/reeveci/reeve/server/legacy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -17,6 +17,7 @@ var programName = os.Args[0]
 var defaultConfigFile = "/etc/reeve/server/daemon.toml"
 var defaultPluginDir = "/etc/reeve/server/plugins"
 var defaultStateDir = "/var/lib/reeve/server"
+var defaultSocketFile = "/var/run/reeve.sock"
 
 const commonSettingEnvPrefix = "REEVE_COMMON_"
 
@@ -30,6 +31,7 @@ var pluginCLINameIKey = pluginCLINameRegex.SubexpIndex("Key")
 type Config struct {
 	PluginDir string `mapstructure:"plugin-dir"`
 	StateDir  string `mapstructure:"state-dir"`
+	Socket    string `mapstructure:"socket"`
 
 	Api struct {
 		HttpPort  int `mapstructure:"http-port"`
@@ -57,6 +59,7 @@ func init() {
 
 	rootCmd.Flags().String("plugin-dir", defaultPluginDir, "Location of the plugin directory")
 	rootCmd.Flags().String("state-dir", defaultStateDir, "Location of the state directory")
+	rootCmd.Flags().String("socket", defaultSocketFile, "Location of the CLI UNIX socket file")
 
 	rootCmd.Flags().Int("http-port", 0, "API HTTP port")
 	rootCmd.Flags().Int("https-port", 0, "API HTTPS port")
@@ -161,12 +164,15 @@ func loadPluginSettings() {
 }
 
 func Execute(buildInfo buildinfo.BuildInfo) {
-	// rootCmd.Version = buildInfo.Version
+	rootCmd.Version = buildInfo.Version
 
-	// if err := rootCmd.Execute(); err != nil {
-	// 	fmt.Fprintln(os.Stderr, err)
-	// 	os.Exit(1)
-	// }
+	// TODO: remove
+	rootCmd.Run = func(cmd *cobra.Command, args []string) {
+		legacy.Execute(buildInfo)
+	}
 
-	legacy.Execute(buildInfo)
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
