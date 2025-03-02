@@ -65,7 +65,7 @@ func (runtime *Runtime) LoadPlugins() error {
 	runtime.PluginProvider.NotifyPlugins = make(map[string]plugin.Plugin, len(pluginPaths))
 	runtime.PluginProvider.CLIPlugins = make(map[string]CLIPlugin, len(pluginPaths))
 
-	nameRegex := regexp.MustCompile("^[a-zA-Z0-9]+$")
+	nameRegex := regexp.MustCompile("^[a-z0-9]+$")
 
 	for _, path := range pluginPaths {
 		cmd := exec.Command(path)

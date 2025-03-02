@@ -43,7 +43,7 @@ var config Config
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.Flags().StringVar(&configFile, "config", "", "Location of client config file (default \""+defaultConfigFile+"\")")
+	rootCmd.Flags().StringVar(&configFile, "config", "", "Location of the client config file (default \""+defaultConfigFile+"\")")
 
 	rootCmd.Flags().String("url", "", "Reeve server URL")
 	rootCmd.Flags().Bool("insecure", false, "Allow insecure TLS connections by skipping certificate verification")
@@ -62,7 +62,7 @@ func initConfig() {
 	viper.SetDefault("auth.prefix", defaultAuthPrefix)
 
 	viper.SetEnvPrefix("REEVE_CLI")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	viper.AutomaticEnv()
 
 	if configFile == "" {
