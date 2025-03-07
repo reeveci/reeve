@@ -10,7 +10,7 @@ import (
 
 func setupConfigFile(v *viper.Viper) {
 	v.SetConfigFile(configFile)
-	if ext := filepath.Ext(configFile); ext == "" || ext == "." {
+	if ext := filepath.Ext(configFile); ext == "" || ext == "." || len(ext) == len(filepath.Base(configFile)) {
 		v.SetConfigType("toml")
 	}
 }

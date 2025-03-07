@@ -4,10 +4,13 @@ go 1.23.6
 
 require (
 	github.com/BurntSushi/toml v1.4.0
+	github.com/Microsoft/go-winio v0.6.2
 	github.com/charmbracelet/glamour v0.8.0
 	github.com/djherbis/stream v1.4.0
+	github.com/docker/go-connections v0.5.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-plugin v1.6.3
+	github.com/pkg/errors v0.9.1
 	github.com/reeveci/reeve-lib v1.3.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.19.0

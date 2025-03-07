@@ -7,17 +7,12 @@ import (
 	"strings"
 
 	"github.com/reeveci/reeve/buildinfo"
-	"github.com/reeveci/reeve/server/legacy"
+	"github.com/reeveci/reeve/server/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var programName = os.Args[0]
-
-var defaultConfigFile = "/etc/reeve/server/daemon.toml"
-var defaultPluginDir = "/etc/reeve/server/plugins"
-var defaultStateDir = "/var/lib/reeve/server"
-var defaultSocketFile = "/var/run/reeve.sock"
 
 const commonSettingEnvPrefix = "REEVE_COMMON_"
 
@@ -28,29 +23,9 @@ var pluginCLINameRegex = regexp.MustCompile(`^(?P<Plugin>[a-zA-Z0-9]+)\.(?P<Key>
 var pluginCLINameIPlugin = pluginCLINameRegex.SubexpIndex("Plugin")
 var pluginCLINameIKey = pluginCLINameRegex.SubexpIndex("Key")
 
-type Config struct {
-	PluginDir string `mapstructure:"plugin-dir"`
-	StateDir  string `mapstructure:"state-dir"`
-	Socket    string `mapstructure:"socket"`
-
-	Api struct {
-		HttpPort  int `mapstructure:"http-port"`
-		HttpsPort int `mapstructure:"https-port"`
-
-		Tls struct {
-			CertFile string `mapstructure:"cert-file"`
-			KeyFile  string `mapstructure:"key-file"`
-		} `mapstructure:"tls"`
-	} `mapstructure:"api"`
-
-	Common  map[string]string            `mapstructure:"common"`
-	Plugins map[string]map[string]string `mapstructure:"plugins"`
-}
-
 var configFile string
 var cliCommonSettings map[string]string
 var cliPluginSettings map[string]string
-var config Config
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -59,7 +34,6 @@ func init() {
 
 	rootCmd.Flags().String("plugin-dir", defaultPluginDir, "Location of the plugin directory")
 	rootCmd.Flags().String("state-dir", defaultStateDir, "Location of the state directory")
-	rootCmd.Flags().String("socket", defaultSocketFile, "Location of the CLI UNIX socket file")
 
 	rootCmd.Flags().Int("http-port", 0, "API HTTP port")
 	rootCmd.Flags().Int("https-port", 0, "API HTTPS port")
@@ -69,6 +43,8 @@ func init() {
 
 	rootCmd.Flags().StringToStringVar(&cliCommonSettings, "common-setting", nil, "Configure a setting to be passed to all plugins (key=value)")
 	rootCmd.Flags().StringToStringVar(&cliPluginSettings, "setting", nil, "Configure a setting to be passed to a specific plugin (plugin.key=value)")
+
+	initPlatform()
 
 	viper.BindPFlag("api.http-port", rootCmd.Flags().Lookup("http-port"))
 	viper.BindPFlag("api.https-port", rootCmd.Flags().Lookup("https-port"))
@@ -96,7 +72,7 @@ func initConfig() {
 		os.Exit(1)
 	}
 
-	if err := viper.Unmarshal(&config); err != nil {
+	if err := viper.Unmarshal(&config.Config); err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot load config:", err)
 		os.Exit(1)
 	}
@@ -105,14 +81,14 @@ func initConfig() {
 }
 
 func loadPluginSettings() {
-	commonSettings := make(map[string]string, len(config.Common))
-	pluginSettings := make(map[string]map[string]string, len(config.Plugins))
+	commonSettings := make(map[string]string, len(config.Config.Common))
+	pluginSettings := make(map[string]map[string]string, len(config.Config.Plugins))
 
 	// Config file
-	for key, value := range config.Common {
+	for key, value := range config.Config.Common {
 		commonSettings[strings.ToLower(key)] = value
 	}
-	for pluginName, pluginConfig := range config.Plugins {
+	for pluginName, pluginConfig := range config.Config.Plugins {
 		settings := make(map[string]string, len(pluginConfig))
 		pluginSettings[strings.ToLower(pluginName)] = settings
 		for key, value := range pluginConfig {
@@ -159,17 +135,12 @@ func loadPluginSettings() {
 		}
 	}
 
-	config.Common = commonSettings
-	config.Plugins = pluginSettings
+	config.Config.Common = commonSettings
+	config.Config.Plugins = pluginSettings
 }
 
 func Execute(buildInfo buildinfo.BuildInfo) {
 	rootCmd.Version = buildInfo.Version
-
-	// TODO: remove
-	rootCmd.Run = func(cmd *cobra.Command, args []string) {
-		legacy.Execute(buildInfo)
-	}
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

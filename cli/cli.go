@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/reeveci/reeve/buildinfo"
+	"github.com/reeveci/reeve/cli/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -26,19 +27,7 @@ var defaultConfigFile = getDefaultConfigFile()
 const defaultAuthHeader = "Authorization"
 const defaultAuthPrefix = "Bearer "
 
-type Config struct {
-	URL      string `mapstructure:"url"`
-	Insecure bool   `mapstructure:"insecure"`
-	Secret   string `mapstructure:"secret"`
-
-	Auth struct {
-		Header string `mapstructure:"header"`
-		Prefix string `mapstructure:"prefix"`
-	} `mapstructure:"auth"`
-}
-
 var configFile string
-var config Config
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -76,7 +65,7 @@ func initConfig() {
 		os.Exit(1)
 	}
 
-	if err := viper.Unmarshal(&config); err != nil {
+	if err := viper.Unmarshal(&config.Config); err != nil {
 		fmt.Fprintln(os.Stderr, "Cannot load config:", err)
 		os.Exit(1)
 	}

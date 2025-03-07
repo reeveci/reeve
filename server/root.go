@@ -1,10 +1,7 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-
+	"github.com/reeveci/reeve/server/server"
 	"github.com/spf13/cobra"
 )
 
@@ -22,13 +19,6 @@ Common plugin settings can be specified with the prefix 'REEVE_COMMON_', specifi
 	Args: cobra.NoArgs,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		encoder := json.NewEncoder(os.Stdout)
-		encoder.SetIndent("", "  ")
-		if err := encoder.Encode(config); err != nil {
-			fmt.Fprintln(os.Stderr, "Cannot encode config:", err)
-			os.Exit(1)
-		}
-
-		// TODO: implement
+		server.Execute()
 	},
 }

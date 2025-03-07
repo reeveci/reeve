@@ -10,25 +10,27 @@ import (
 	gourl "net/url"
 	"os"
 	"strings"
+
+	"github.com/reeveci/reeve/cli/config"
 )
 
 func PrepareRequest() (url string, authHeader, auth string, client *http.Client) {
-	if config.URL == "" {
+	if config.Config.URL == "" {
 		fmt.Fprintln(os.Stderr, "Missing server URL")
 		os.Exit(1)
 	}
-	url = config.URL
+	url = config.Config.URL
 
-	authHeader = config.Auth.Header
+	authHeader = config.Config.Auth.Header
 
-	if config.Secret == "" {
+	if config.Config.Secret == "" {
 		fmt.Fprintln(os.Stderr, "Missing secret")
 		os.Exit(1)
 	}
-	auth = strings.TrimSpace(config.Auth.Prefix + config.Secret)
+	auth = strings.TrimSpace(config.Config.Auth.Prefix + config.Config.Secret)
 
 	client = &http.Client{Transport: &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: config.Insecure},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: config.Config.Insecure},
 	}}
 	return
 }
