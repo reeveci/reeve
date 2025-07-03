@@ -1,7 +1,9 @@
 #!/bin/sh
 set -e
 
-if [ -n "$DOCKER_LOGIN_REGISTRY" ]; then
+if [ -n "$DOCKER_LOGIN_REGISTRIES" ]; then
+  reeve-tools login-docker $DOCKER_LOGIN_REGISTRIES
+elif [ -n "$DOCKER_LOGIN_REGISTRY" ]; then
   if [ -z "$DOCKER_LOGIN_USER" ]; then
     echo Missing login user
     exit 1

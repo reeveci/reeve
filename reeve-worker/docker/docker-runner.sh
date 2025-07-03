@@ -4,6 +4,7 @@ set -e
 docker run \
   --rm -i \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  -e DOCKER_LOGIN_REGISTRIES \
   -e DOCKER_LOGIN_REGISTRY \
   -e DOCKER_LOGIN_USER \
   -e DOCKER_LOGIN_PASSWORD \
