@@ -18,15 +18,13 @@ steps:
   - name: Load env
     task: "@reeve/load-env-file"
     params:
-      FILE: config.env
+      FILES: config.env
       LOAD_ALL: "true"
 
   - name: Build image
     task: "@docker/build"
     params:
-      DOCKER_LOGIN_REGISTRY: docker.io
-      DOCKER_LOGIN_USER: { env: docker/github/user }
-      DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
+      DOCKER_LOGIN_REGISTRIES: { env: docker/hub/login }
       NAME: docker.io/reeveci/reeve
       TAG: { var: REEVE_VERSION }
       FILE: reeve-server/docker/Dockerfile
@@ -53,15 +51,13 @@ steps:
   - name: Load env
     task: "@reeve/load-env-file"
     params:
-      FILE: config.env
+      FILES: config.env
       LOAD_ALL: "true"
 
   - name: Build image
     task: "@docker/build"
     params:
-      DOCKER_LOGIN_REGISTRY: docker.io
-      DOCKER_LOGIN_USER: { env: docker/github/user }
-      DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
+      DOCKER_LOGIN_REGISTRIES: { env: docker/hub/login }
       NAME: docker.io/reeveci/reeve-worker
       TAG: { var: REEVE_VERSION }
       FILE: reeve-worker/docker/Dockerfile
@@ -88,15 +84,13 @@ steps:
   - name: Load env
     task: "@reeve/load-env-file"
     params:
-      FILE: config.env
+      FILES: config.env
       LOAD_ALL: "true"
 
   - name: Build image
     task: "@docker/build"
     params:
-      DOCKER_LOGIN_REGISTRY: docker.io
-      DOCKER_LOGIN_USER: { env: docker/github/user }
-      DOCKER_LOGIN_PASSWORD: { env: docker/github/password }
+      DOCKER_LOGIN_REGISTRIES: { env: docker/hub/login }
       NAME: docker.io/reeveci/reeve-runner
       TAG: { var: REEVE_VERSION }
       FILE: reeve-runner/docker/Dockerfile
