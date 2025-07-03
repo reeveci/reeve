@@ -24,6 +24,13 @@ go get -u ./...
 go mod tidy
 cd ..
 
+echo visiting reeve-tools
+cd reeve-tools
+go get github.com/reeveci/reeve-lib
+go get -u ./...
+go mod tidy
+cd ..
+
 echo visiting plugin-example
 cd plugin-example
 go get github.com/reeveci/reeve-lib
