@@ -383,6 +383,10 @@ func (runtime *Runtime) RunTask(config schema.RunConfig, log, errorLog logs.LogW
 		args = append(args, "-v", "/var/run/docker.sock:/var/run/docker.sock")
 	}
 
+	for _, mount := range resolvedConfig.Mounts {
+		args = append(args, "--mount", mount)
+	}
+
 	if len(resolvedConfig.Directory) > 0 {
 		args = append(args,
 			"-v", fmt.Sprintf("/%s:/reeve/mount:rw", strings.TrimPrefix(resolvedConfig.Directory, "/")),

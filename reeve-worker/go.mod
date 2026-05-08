@@ -1,10 +1,8 @@
 module github.com/reeveci/reeve/reeve-worker
 
-go 1.22
+go 1.25.0
 
-toolchain go1.24.3
-
-require github.com/reeveci/reeve-lib v1.3.0
+require github.com/reeveci/reeve-lib v1.4.0
 
 require github.com/djherbis/stream v1.4.0
 
