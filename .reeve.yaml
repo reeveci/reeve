@@ -1,10 +1,10 @@
 ---
 type: pipeline
-name: Build Reeve Server
+name: build image - docker.io/reeveci/reeve
 
 when:
   workerGroup:
-    include: [soldier]
+    include: [soldier@midgar]
   trigger:
     include: [commit, action]
   file:
@@ -12,16 +12,16 @@ when:
       - config.env
       - .reeve.yaml
   action:
-    include: [reeveci:reeve:build]
+    include: [images:docker.io/reeveci/reeve:build]
 
 steps:
-  - name: Load env
+  - name: load env
     task: "@reeve/load-env-file"
     params:
       FILES: config.env
       LOAD_ALL: "true"
 
-  - name: Build image
+  - name: build image - docker.io/reeveci/reeve
     task: "@docker/build"
     params:
       DOCKER_LOGIN_REGISTRIES: { env: docker/hub/reeve/login }
@@ -29,15 +29,16 @@ steps:
       TAG: { var: REEVE_VERSION }
       FILE: reeve-server/docker/Dockerfile
       CONTEXT: .
-      PLATFORM: amd64
+      PLATFORM: amd64,arm64
+      BUILD_DRIVER: docker-container
 
 ---
 type: pipeline
-name: Build Reeve Worker
+name: build image - docker.io/reeveci/reeve-worker
 
 when:
   workerGroup:
-    include: [soldier]
+    include: [soldier@midgar]
   trigger:
     include: [commit, action]
   file:
@@ -45,16 +46,16 @@ when:
       - config.env
       - .reeve.yaml
   action:
-    include: [reeveci:reeve:build]
+    include: [images:docker.io/reeveci/reeve-worker:build]
 
 steps:
-  - name: Load env
+  - name: load env
     task: "@reeve/load-env-file"
     params:
       FILES: config.env
       LOAD_ALL: "true"
 
-  - name: Build image
+  - name: build image - docker.io/reeveci/reeve-worker
     task: "@docker/build"
     params:
       DOCKER_LOGIN_REGISTRIES: { env: docker/hub/reeve/login }
@@ -62,15 +63,16 @@ steps:
       TAG: { var: REEVE_VERSION }
       FILE: reeve-worker/docker/Dockerfile
       CONTEXT: .
-      PLATFORM: amd64
+      PLATFORM: amd64,arm64
+      BUILD_DRIVER: docker-container
 
 ---
 type: pipeline
-name: Build Reeve Runner
+name: build image - docker.io/reeveci/reeve-runner
 
 when:
   workerGroup:
-    include: [soldier]
+    include: [soldier@midgar]
   trigger:
     include: [commit, action]
   file:
@@ -78,16 +80,16 @@ when:
       - config.env
       - .reeve.yaml
   action:
-    include: [reeveci:reeve:build]
+    include: [images:docker.io/reeveci/reeve-runner:build]
 
 steps:
-  - name: Load env
+  - name: load env
     task: "@reeve/load-env-file"
     params:
       FILES: config.env
       LOAD_ALL: "true"
 
-  - name: Build image
+  - name: build image - docker.io/reeveci/reeve-runner
     task: "@docker/build"
     params:
       DOCKER_LOGIN_REGISTRIES: { env: docker/hub/reeve/login }
@@ -95,4 +97,5 @@ steps:
       TAG: { var: REEVE_VERSION }
       FILE: reeve-runner/docker/Dockerfile
       CONTEXT: .
-      PLATFORM: amd64
+      PLATFORM: amd64,arm64
+      BUILD_DRIVER: docker-container
