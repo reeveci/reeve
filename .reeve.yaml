@@ -3,16 +3,15 @@ type: pipeline
 name: build image - docker.io/reeveci/reeve
 
 when:
-  workerGroup:
-    include: [soldier@midgar]
-  trigger:
-    include: [commit, action]
+  workerGroup: { include: [soldier@midgar] }
+  trigger: { include: [commit, action] }
   file:
     include:
       - config.env
       - .reeve.yaml
-  action:
-    include: [images:docker.io/reeveci/reeve:build]
+    match:
+      - ^reeve-server/docker/
+  action: { include: [images:docker.io/reeveci/reeve:build] }
 
 steps:
   - name: load env
@@ -37,16 +36,15 @@ type: pipeline
 name: build image - docker.io/reeveci/reeve-worker
 
 when:
-  workerGroup:
-    include: [soldier@midgar]
-  trigger:
-    include: [commit, action]
+  workerGroup: { include: [soldier@midgar] }
+  trigger: { include: [commit, action] }
   file:
     include:
       - config.env
       - .reeve.yaml
-  action:
-    include: [images:docker.io/reeveci/reeve-worker:build]
+    match:
+      - ^reeve-worker/docker/
+  action: { include: [images:docker.io/reeveci/reeve-worker:build] }
 
 steps:
   - name: load env
@@ -71,16 +69,15 @@ type: pipeline
 name: build image - docker.io/reeveci/reeve-runner
 
 when:
-  workerGroup:
-    include: [soldier@midgar]
-  trigger:
-    include: [commit, action]
+  workerGroup: { include: [soldier@midgar] }
+  trigger: { include: [commit, action] }
   file:
     include:
       - config.env
       - .reeve.yaml
-  action:
-    include: [images:docker.io/reeveci/reeve-runner:build]
+    match:
+      - ^reeve-runner/docker/
+  action: { include: [images:docker.io/reeveci/reeve-runner:build] }
 
 steps:
   - name: load env
